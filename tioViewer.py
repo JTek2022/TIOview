@@ -10,6 +10,7 @@ import streamlit as st
 from st_aggrid import AgGrid
 import pandas as pd
 import re
+import openpyxl
 
 # set the page icon and title
 # may not be useful in the iframe
@@ -65,53 +66,79 @@ def tioLogViewer():
     tsRegEx = r"\d{2}:\d{2}:\d{2}.\d{3},\d{3}"
     logDF = pd.DataFrame()
     logList = []
-    
-    for line in theList:
-        fullLine = str(line)
-        
-        timestamp = ""
-        lvl = ""
-        
-
-        
-        thread = fullLine.split('>',maxsplit=1)[-1].split(':',maxsplit=1)[0]
-        
-        fullLine = fullLine.replace(thread,"")
-        
-        timestampSearch = re.search(tsRegEx, fullLine)
-        if timestampSearch:
-            timestamp = timestampSearch.group(0)
-            fullLine = fullLine.replace('['+timestamp+']','') # take out timestamp from string
-        
-        
-        lvlSearch = re.search(lvlRegEx, fullLine)
-        if lvlSearch:
-            lvl = lvlSearch.group(0)
-        
-        patterns = {r"b'": "", r"\x1b": "", r"1;32muart:~$": "",
-                    r"[0m'":"", r"[0m":"", r"[m[8D[J":"",
-                    thread:"", lvl:""}
-
-        for pattern, replacement in patterns.items():
-            fullLine = fullLine.replace(pattern, replacement)
-        
-        if fullLine == "":
-            fullLine = thread
-            thread = ""
+    with st.spinner('Parsing text...'):
+        for line in theList:
+            fullLine = str(line)
             
-        outRow = {'Timestamp':timestamp,
-                  'Debug':lvl,
-                  'thread':thread.strip(),
-                  'remain':fullLine,
-                  'raw':str(line)}
-        
-        logList.append(pd.DataFrame(outRow,index=[0]))
+            timestamp = ""
+            lvl = ""
+            
+    
+            
+            thread = fullLine.split('>',maxsplit=1)[-1].split(':',maxsplit=1)[0]
+            
+            fullLine = fullLine.replace(thread,"")
+            
+            timestampSearch = re.search(tsRegEx, fullLine)
+            if timestampSearch:
+                timestamp = timestampSearch.group(0)
+                fullLine = fullLine.replace('['+timestamp+']','') # take out timestamp from string
+            
+            
+            lvlSearch = re.search(lvlRegEx, fullLine)
+            if lvlSearch:
+                lvl = lvlSearch.group(0)
+            
+            patterns = {r"b'": "", r"\x1b": "", r"1;32muart:~$": "",
+                        r"[0m'":"", r"[0m":"", r"[m[8D[J":"","[1;33m":"",":":"","[":"",
+                        thread:"", lvl:""}
+    
+            for pattern, replacement in patterns.items():
+                fullLine = fullLine.replace(pattern, replacement)
+            
+            if fullLine == "":
+                fullLine = thread
+                thread = ""
+                
+            outRow = {'Timestamp':timestamp,
+                      'Debug':lvl,
+                      'thread':thread.strip(),
+                      'log':fullLine,
+                      'raw':str(line)}
+            
+            logList.append(pd.DataFrame(outRow,index=[0]))
         
 
     if len(logList) > 0:
         logDF = pd.concat(logList, ignore_index=True)
-    
-        AgGrid(logDF)
+        #logDF
+        #AgGrid(logDF)
+
+        logDF.to_excel("my_file.xlsx")
+        # Load the Excel file
+        workbook = openpyxl.load_workbook('my_file.xlsx')
+        worksheet = workbook['Sheet1']
+        
+        # Add filters to the worksheet
+        worksheet.auto_filter.ref = worksheet.dimensions
+        for col in worksheet.iter_cols():
+            worksheet.auto_filter.add_filter_column(col[0].col_idx - 1, [])
+
+        # Save the filtered Excel file
+        workbook.save('tio.xlsx')
+        
+        # add a download button for the file
+        with open('tio.xlsx', 'rb') as f:
+            data = f.read()
+        st.download_button(
+            label='Download Tio Excel file',
+            data=data,
+            file_name='tio.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+        with st.expander("See spreadsheet here (may be very slow)"):
+            AgGrid(logDF)
         
 
 # page2use = st.sidebar.radio(label="Choose tool", options=["LED Decoder","tio log viewer"])

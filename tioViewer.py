@@ -59,7 +59,7 @@ def tioLogViewer():
         bytes_data = uploaded_file.read()
         st.write("filename:", uploaded_file.name)
         theList = (bytes_data.splitlines())
-    a = 300
+
     # timestamp format [00:00:31.667,968]
     lvlRegEx = r"<[a-zA-Z]{3}>"
     tsRegEx = r"\d{2}:\d{2}:\d{2}.\d{3},\d{3}"
@@ -107,10 +107,7 @@ def tioLogViewer():
         
         logList.append(pd.DataFrame(outRow,index=[0]))
         
-        #st.write(outRow)
-        a -= 1
-        if a<0:
-            break
+
     if len(logList) > 0:
         logDF = pd.concat(logList, ignore_index=True)
     

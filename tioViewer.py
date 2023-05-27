@@ -13,7 +13,7 @@ import re
 
 # set the page icon and title
 # may not be useful in the iframe
-st.set_page_config(page_title='Revenue Model',  layout='wide', page_icon='https://noctrixhealth.com/wp-content/uploads/2021/05/cropped-SiteIcon-32x32.jpg')
+st.set_page_config(page_title='TIO log Viewer Dashboard',  layout='wide', page_icon='https://noctrixhealth.com/wp-content/uploads/2021/05/cropped-SiteIcon-32x32.jpg')
 
 
 # remove the orange/red line on top

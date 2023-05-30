@@ -7,7 +7,8 @@ Created on Thu May 25 12:09:56 2023
 
 import streamlit as st
 
-from st_aggrid import AgGrid
+from st_aggrid import AgGrid, GridOptionsBuilder
+
 import pandas as pd
 import re
 import openpyxl
@@ -137,8 +138,12 @@ def tioLogViewer():
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
         
-        with st.expander("See spreadsheet here (may be very slow)"):
-            AgGrid(logDF)
+        with st.expander("See spreadsheet here 100 row per page"):
+            # configure grid options
+            gob = GridOptionsBuilder.from_dataframe(logDF)
+            gob.configure_pagination(paginationPageSize=100)  # set page size to 2 rows
+            grid_options = gob.build()
+            AgGrid(logDF, gridOptions=grid_options)
         
 
 # page2use = st.sidebar.radio(label="Choose tool", options=["LED Decoder","tio log viewer"])

@@ -112,7 +112,7 @@ def tioLogViewer():
         st.download_button(
             label='Download Tio Excel file',
             data=data,
-            file_name='tio.xlsx',
+            file_name=newFileName,
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
         

@@ -29,30 +29,6 @@ hide_decoration_bar_style = '''
 st.markdown(hide_decoration_bar_style, unsafe_allow_html=True)
 
 
-def LEDdecoder():
-
-    col1, col2, col3, col4, col5 = st.columns(5)
-    led1 = col1.checkbox(label="LED 1")
-    led2 = col2.checkbox(label="LED 2")
-    led3 = col3.checkbox(label="LED 3")
-    led4 = col4.checkbox(label="LED 4")
-    led5 = col5.checkbox(label="LED 5")
-    
-        
-    if led1 and not (led2 or led3 or led4):
-        st.write("No Therapy sessions recorded")
-        
-    if (led1 and led2) and not (led3 or led4):
-        st.write("1 or two therapy sessions recorded")
-        
-    if (led1 and led2 and led3) and not (led4):
-        st.write("3 or 4 therapy sessions recorded")
-    
-    if (led1 and led2 and led3 and led4):
-        st.write("5+ therapy sessions recorded")
-    
-    if (led1 and led2 and led5):
-        st.write("and >75% of sessions ended at higher than L1")
 
 def tioLogViewer():
     uploaded_files = st.file_uploader("Drag a TIO created log file", accept_multiple_files=True)
@@ -126,10 +102,12 @@ def tioLogViewer():
             worksheet.auto_filter.add_filter_column(col[0].col_idx - 1, [])
 
         # Save the filtered Excel file
-        workbook.save('tio.xlsx')
+        newFileName = str(uploaded_file.name).replace(".txt","xlsx")
+        workbook.save(newFileName)
+        
         
         # add a download button for the file
-        with open('tio.xlsx', 'rb') as f:
+        with open(newFileName, 'rb') as f:
             data = f.read()
         st.download_button(
             label='Download Tio Excel file',

@@ -102,7 +102,7 @@ def tioLogViewer():
             worksheet.auto_filter.add_filter_column(col[0].col_idx - 1, [])
 
         # Save the filtered Excel file
-        newFileName = str(uploaded_file.name).replace(".txt","xlsx")
+        newFileName = str(uploaded_file.name).replace(".txt",".xlsx")
         workbook.save(newFileName)
         
         
